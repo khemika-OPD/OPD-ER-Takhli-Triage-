@@ -3,128 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Takhli OPD Triage Tool - Full Edition</title>
+    <title>Takhli OPD Triage Tool - High Visibility</title>
     <style>
-        :root { --red: #ff4d4d; --pink: #ff99cc; --yellow: #ffff66; --green: #99ff99; --white: #ffffff; }
-        body { font-family: 'Sarabun', sans-serif; padding: 10px; background-color: #f8f9fa; }
-        .card { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        h2 { text-align: center; color: #1a3a5a; border-bottom: 3px solid #1a3a5a; padding-bottom: 10px; }
-        .section { margin-bottom: 20px; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
-        .section-red { border-left: 10px solid var(--red); background: #fff5f5; }
-        .section-pink { border-left: 10px solid var(--pink); background: #fff5fa; }
-        .section-yellow { border-left: 10px solid var(--yellow); background: #fffff0; }
-        .title { font-weight: bold; margin-bottom: 10px; color: #1a3a5a; font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
-        .check-item { display: flex; align-items: flex-start; gap: 8px; font-size: 0.9em; padding: 5px; background: white; border-radius: 5px; border: 1px solid #eee; }
-        .vs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 10px; }
-        .lab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-        input[type="number"], select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
-        button#calc-btn { width: 100%; padding: 20px; background: #1a3a5a; color: white; border: none; border-radius: 10px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        #result { margin-top: 20px; padding: 30px; border-radius: 10px; text-align: center; display: none; font-size: 28px; font-weight: bold; }
+        :root {
+            --red-bg: #ffcccc; --red-text: #b30000;
+            --pink-bg: #ffe6f2; --pink-text: #cc0066;
+            --yellow-bg: #ffffcc; --yellow-text: #856404;
+            --green-bg: #d4edda; --green-text: #155724;
+            --white-bg: #ffffff; --white-text: #383d41;
+        }
+        body { font-family: 'Sarabun', sans-serif; padding: 10px; background-color: #e9ecef; }
+        .card { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        h2 { text-align: center; color: #1a3a5a; border-bottom: 3px solid #1a3a5a; padding-bottom: 15px; margin-bottom: 25px; }
+        
+        .section { margin-bottom: 20px; padding: 20px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.05); }
+        
+        /* สีพื้นหลังแต่ละระดับในหน้าเลือก */
+        .level-1-box { background-color: var(--red-bg); border-left: 15px solid var(--red-text); }
+        .level-2-box { background-color: var(--pink-bg); border-left: 15px solid var(--pink-text); }
+        .level-3-box { background-color: var(--yellow-bg); border-left: 15px solid var(--yellow-text); }
+        
+        .title { font-weight: bold; margin-bottom: 15px; font-size: 1.2em; display: flex; align-items: center; gap: 10px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+        
+        .check-item { 
+            display: flex; align-items: flex-start; gap: 10px; padding: 10px; 
+            background: rgba(255,255,255,0.6); border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .check-item:hover { background: rgba(255,255,255,0.9); }
+        
+        .vs-grid, .lab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-top: 10px; }
+        input[type="number"], input[type="text"], select { 
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ced4da; font-size: 16px;
+        }
+
+        button#calc-btn { 
+            width: 100%; padding: 20px; background: #1a3a5a; color: white; border: none; 
+            border-radius: 12px; font-size: 24px; font-weight: bold; cursor: pointer; margin-top: 30px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* ส่วนแสดงผลลัพธ์แบบเน้นสี */
+        #result-container { 
+            margin-top: 30px; padding: 40px; border-radius: 15px; text-align: center; 
+            display: none; border: 4px solid rgba(0,0,0,0.1); transition: 0.5s;
+        }
+        .res-level { font-size: 48px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
+        .res-dest { font-size: 24px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>OPD-ER Triage//</h2>
+    <h2>🏥 ระบบคัดกรองผู้ป่วย OPD รพ.ตาคลี</h2>
 
-    <!-- ระดับ 1 (สีแดง) -->
-    <div class="section section-red">
-        <div class="title">🔴 ระดับ 1: วิกฤต (ช่วยเหลือทันที)</div>
-        <div class="grid-3">
+    <!-- ระดับ 1: สีแดง -->
+    <div class="section level-1-box">
+        <div class="title" style="color: var(--red-text);">🔴 ระดับ 1: RESUSCITATION (ช่วยชีวิตทันที)</div>
+        <div class="grid-container">
             <label class="check-item"><input type="checkbox" class="lv1"> CPR / ET tube / ICD insertion</label>
             <label class="check-item"><input type="checkbox" class="lv1"> GCS < 8 / O2 sat < 90%</label>
-            <label class="check-item"><input type="checkbox" class="lv1"> Life-threatening arrhythmia (SVT, AF rate>120, VT, HR<40)</label>
-            <label class="check-item"><input type="checkbox" class="lv1"> Shock (SBP < 90 หรือ MAP < 65 mmHg)</label>
+            <label class="check-item"><input type="checkbox" class="lv1"> Arrhythmia (SVT, AF rate>120, VT, HR<40)</label>
+            <label class="check-item"><input type="checkbox" class="lv1"> Shock (SBP < 90 หรือ MAP < 65)</label>
             <label class="check-item"><input type="checkbox" class="lv1"> Seizure / BP >= 220/130 mmHg</label>
-            <label class="check-item"><input type="checkbox" class="lv1"> NEW score >= 5 หรือ >= 3 คะแนน (ข้อใดข้อหนึ่ง ยกเว้น Temp)</label>
+            <label class="check-item"><input type="checkbox" class="lv1"> NEW score >= 5 (ยกเว้น Temp)</label>
         </div>
     </div>
 
-    <!-- ระดับ 2 (สีชมพู) -->
-    <div class="section section-pink">
-        <div class="title">💗 ระดับ 2: เสี่ยง ซึม ปวด (Emergency)</div>
-        <div class="grid-3">
+    <!-- ระดับ 2: สีชมพู -->
+    <div class="section level-2-box">
+        <div class="title" style="color: var(--pink-text);">💗 ระดับ 2: EMERGENCY (เสี่ยง ซึม ปวด)</div>
+        <div class="grid-container">
             <label class="check-item"><input type="checkbox" class="lv2"> Fast track stroke / STEMI</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> เจ็บหน้าอก / แขนขาอ่อนแรง ภายใน 24 ชม.</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> เลือดออก Active / สัตว์มีพิษกัด ภายใน 24 ชม.</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> จิตเวชคลุ้มคลั่ง ก้าวร้าว / เสี่ยงฆ่าตัวตาย</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> Pain score >= 7 (ร่วมกับ V/S ผิดปกติ)</label>
+            <label class="check-item"><input type="checkbox" class="lv2"> เจ็บหน้าอก / แขนขาอ่อนแรง < 24 ชม.</label>
+            <label class="check-item"><input type="checkbox" class="lv2"> เลือดออก Active / สัตว์มีพิษกัด</label>
+            <label class="check-item"><input type="checkbox" class="lv2"> จิตเวชคลุ้มคลั่ง / เสี่ยงฆ่าตัวตาย</label>
+            <label class="check-item"><input type="checkbox" class="lv2"> Pain score >= 7</label>
             <label class="check-item"><input type="checkbox" class="lv2"> นิติเวช (คดี, ล่วงละเมิดทางเพศ)</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> สูตินรีเวช (ภาวะแทรกซ้อนครรภ์/คลอด GA<28wk)</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> DM ที่ FBS <= 70 mg/dl หรือ DTX HI (รุนแรง)</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> สัตว์เลี้ยงลูกด้วยนมกัด/ข่วน ภายใน 24 ชม.</label>
+            <label class="check-item"><input type="checkbox" class="lv2"> ครรภ์/คลอด GA < 28 สัปดาห์</label>
+            <label class="check-item"><input type="checkbox" class="lv2"> DM: FBS <= 70 หรือ DTX HI (มีอาการ)</label>
         </div>
     </div>
 
-    <!-- ระดับ 3 (สีเหลือง) - V/S & Labs -->
-    <div class="section section-yellow">
-        <div class="title">🟡 ระดับ 3: สัญญาณชีพผิดปกติ & Panic Labs</div>
+    <!-- ระดับ 3: สีเหลือง -->
+    <div class="section level-3-box">
+        <div class="title" style="color: var(--yellow-text);">🟡 ระดับ 3: URGENT (สัญญาณชีพ & Lab วิกฤต)</div>
+        <div style="font-weight: bold; margin-bottom: 5px;">📊 สัญญาณชีพผิดปกติ</div>
         <div class="vs-grid">
             <div><label>อายุ</label><select id="age"><option value="adult">ผู้ใหญ่</option><option value="child_8">3-8 ปี</option><option value="child_3">3ด.-3ปี</option><option value="infant"><3ด.</option></select></div>
             <div><label>HR</label><input type="number" id="hr"></div>
             <div><label>RR</label><input type="number" id="rr"></div>
-            <div><label>SBP/DBP</label><input type="text" id="bp" placeholder="เช่น 180/100"></div>
+            <div><label>BP (ตัวบน)</label><input type="number" id="sbp"></div>
             <div><label>SpO2 (%)</label><input type="number" id="spo2"></div>
             <div><label>Temp</label><input type="number" id="temp"></div>
         </div>
-        <hr>
+        <div style="font-weight: bold; margin-top: 15px; margin-bottom: 5px;">🧪 ผล Lab Panic Value</div>
         <div class="lab-grid">
-            <div><label>FBS</label><input type="number" id="lab_fbs" placeholder="<=55, >=400"></div>
-            <div><label>Na</label><input type="number" id="lab_na" placeholder="<=120, >=160"></div>
-            <div><label>K</label><input type="number" id="lab_k" placeholder="<=2.5, >=6"></div>
-            <div><label>Hct (%)</label><input type="number" id="lab_hct" placeholder="<=20%"></div>
-            <div><label>Platelet</label><input type="number" id="lab_plt" placeholder="<=20k"></div>
-            <div><label>INR</label><input type="number" id="lab_inr" placeholder=">=5"></div>
-            <div><label>WBC</label><input type="number" id="lab_wbc" placeholder="<=2k, >=30k"></div>
+            <div><label>FBS</label><input type="number" id="lab_fbs"></div>
+            <div><label>Na</label><input type="number" id="lab_na"></div>
+            <div><label>K</label><input type="number" id="lab_k" step="0.1"></div>
+            <div><label>Hct (%)</label><input type="number" id="lab_hct"></div>
+            <div><label>Platelet</label><input type="number" id="lab_plt"></div>
+            <div><label>INR</label><input type="number" id="lab_inr" step="0.1"></div>
         </div>
     </div>
 
-    <button id="calc-btn" onclick="triage()">คัดแยกผู้ป่วย</button>
-    <div id="result"></div>
+    <button id="calc-btn" onclick="triage()">ประมวลผลการคัดแยก</button>
+
+    <div id="result-container">
+        <div id="res-level" class="res-level"></div>
+        <div id="res-dest" class="res-dest"></div>
+    </div>
 </div>
 
 <script>
 function triage() {
     const lv1 = Array.from(document.querySelectorAll('.lv1')).some(c => c.checked);
     const lv2 = Array.from(document.querySelectorAll('.lv2')).some(c => c.checked);
+    
+    // V/S
     const hr = parseInt(document.getElementById('hr').value) || 0;
     const rr = parseInt(document.getElementById('rr').value) || 0;
-    const age = document.getElementById('age').value;
+    const sbp = parseInt(document.getElementById('sbp').value) || 0;
     const spo2 = parseInt(document.getElementById('spo2').value) || 100;
     const temp = parseFloat(document.getElementById('temp').value) || 0;
-    
-    // BP logic
-    const bpText = document.getElementById('bp').value;
-    const sbp = bpText ? parseInt(bpText.split('/')[0]) : 0;
+    const age = document.getElementById('age').value;
 
-    // Lab Values
+    // Labs
     const fbs = parseInt(document.getElementById('lab_fbs').value);
     const na = parseInt(document.getElementById('lab_na').value);
     const k = parseFloat(document.getElementById('lab_k').value);
     const hct = parseInt(document.getElementById('lab_hct').value);
 
-    let res = { level: 5, color: 'white', text: 'ระดับ 5 (Non-Urgent)' };
+    let final = { level: 5, color: var('--white-bg'), text: 'var(--white-text)', title: 'ระดับ 5', dest: 'อาคาร OPD (ตรวจตามคิวปกติ)' };
 
-    // --- LEVEL 1 ---
-    if (lv1 || spo2 < 90) res = { level: 1, color: 'var(--red)', text: 'ระดับ 1 (Resuscitation)' };
-    // --- LEVEL 2 ---
+    // logic ลำดับความสำคัญ
+    if (lv1 || spo2 < 90 || (sbp > 0 && sbp < 90)) {
+        final = { level: 1, color: 'var(--red-bg)', text: 'var(--red-text)', title: 'ระดับ 1', dest: 'ห้องฉุกเฉิน (ช่วยฟื้นคืนชีพทันที)' };
+    } 
     else if (lv2 || spo2 < 95 || (age==='adult' && (hr>100 || rr>20)) || (age==='child_8' && (hr>140 || rr>30)) || (age==='child_3' && (hr>160 || rr>40)) || (age==='infant' && (hr>180 || rr>50))) {
-        res = { level: 2, color: 'var(--pink)', text: 'ระดับ 2 (Emergency)' };
+        final = { level: 2, color: 'var(--pink-bg)', text: 'var(--pink-text)', title: 'ระดับ 2', dest: 'ห้องฉุกเฉิน (ช่วยเหลือรวดเร็ว)' };
     }
-    // --- LEVEL 3 (V/S & Panic Labs) ---
     else if ((hr >= 120 || hr < 50) || (sbp >= 180) || (temp > 39) || (fbs <= 55 || fbs >= 400) || (na <= 120 || na >= 160) || (k <= 2.5 || k >= 6) || (hct <= 20)) {
-        res = { level: 3, color: 'var(--yellow)', text: 'ระดับ 3 (Urgent / Fast Track)' };
+        final = { level: 3, color: 'var(--yellow-bg)', text: 'var(--yellow-text)', title: 'ระดับ 3', dest: 'OPD Fast Track / คิวเร่งด่วน' };
     }
-    // --- LEVEL 4 ---
-    else if (hr > 0) res = { level: 4, color: 'var(--green)', text: 'ระดับ 4 (Semi-Urgent)' };
+    else if (hr > 0) {
+        final = { level: 4, color: 'var(--green-bg)', text: 'var(--green-text)', title: 'ระดับ 4', dest: 'อาคาร OPD (Semi-Urgent)' };
+    }
 
-    const el = document.getElementById('result');
-    el.style.display = 'block';
-    el.style.backgroundColor = res.color;
-    el.innerText = res.text;
-    window.scrollTo(0, document.body.scrollHeight);
+    const resBox = document.getElementById('result-container');
+    resBox.style.display = 'block';
+    resBox.style.backgroundColor = final.color;
+    resBox.style.color = final.text;
+    resBox.style.borderColor = final.text;
+    
+    document.getElementById('res-level').innerText = final.title;
+    document.getElementById('res-dest').innerText = "จุดหมาย: " + final.dest;
+    
+    resBox.scrollIntoView({ behavior: 'smooth' });
 }
 </script>
+
 </body>
 </html>
