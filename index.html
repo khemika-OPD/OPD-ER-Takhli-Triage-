@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>OPD Triage Tool - Takhli Hospital Logic</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; }
+        .section { margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 15px; background-color: #27ae60; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }
+        #result { margin-top: 20px; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 5px; display: none; }
+        .red { background-color: #ff4d4d; color: white; }
+        .pink { background-color: #ff99cc; color: black; }
+        .yellow { background-color: #ffff66; color: black; }
+        .green { background-color: #99ff99; color: black; }
+        .white { background-color: #ffffff; border: 2px solid #ddd; color: black; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>เครื่องมือคัดกรอง OPD (ตาคลี Model)</h2>
+    
+    <!-- Step 1 & 2: High Risk Check -->
+    <div class="section">
+        <label>อาการสำคัญ (ถ้ามีข้อใดข้อหนึ่ง)</label>
+        <select id="highRisk">
+            <option value="none">-- ปกติ / ไม่มีอาการวิกฤต --</option>
+            <option value="lv1">วิกฤต: CPR/GCS<8/Shock/หายใจลำบากมาก</option>
+            <option value="lv2">เสี่ยง/ซึม/ปวด: Fast Track Stroke-STEMI / เจ็บอก / ปวดรุนแรง</option>
+            <option value="lv2">จิตเวชคลุ้มคลั่ง / สัตว์มีพิษกัดภายใน 24 ชม.</option>
+        </select>
+    </div>
+
+    <!-- Step 3: Vital Signs -->
+    <div class="section">
+        <label>อายุ</label>
+        <select id="ageGroup">
+            <option value="adult">ผู้ใหญ่ (>8 ปี)</option>
+            <option value="child">เด็ก (3-8 ปี)</option>
+            <option value="toddler">เด็ก (3 เดือน - 3 ปี)</option>
+            <option value="infant">ทารก (<3 เดือน)</option>
+        </select>
+        
+        <label>HR (ชีพจร)</label>
+        <input type="number" id="hr" placeholder="ครั้ง/นาที">
+        
+        <label>RR (หายใจ)</label>
+        <input type="number" id="rr" placeholder="ครั้ง/นาที">
+        
+        <label>SpO2 (%)</label>
+        <input type="number" id="spo2" placeholder="ปกติ > 95">
+    </div>
+
+    <!-- Step 4: Resource -->
+    <div class="section">
+        <label>จำนวนทรัพยากรที่ต้องใช้ (Lab, X-ray, IV, หัตถการ)</label>
+        <select id="resources">
+            <option value="0">0 อย่าง (มาตรวจทั่วไป/รับยาเดิม)</option>
+            <option value="1">1 อย่าง (เช่น เจาะเลือดอย่างเดียว)</option>
+            <option value="2">2 อย่างขึ้นไป</option>
+        </select>
+    </div>
+
+    <button onclick="calculateTriage()">ประมวลผลการคัดแยก</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+function calculateTriage() {
+    const highRisk = document.getElementById('highRisk').value;
+    const age = document.getElementById('ageGroup').value;
+    const hr = parseInt(document.getElementById('hr').value) || 0;
+    const rr = parseInt(document.getElementById('rr').value) || 0;
+    const spo2 = parseInt(document.getElementById('spo2').value) || 100;
+    const resources = document.getElementById('resources').value;
+    const resultDiv = document.getElementById('result');
+    
+    let level = "";
+    let colorClass = "";
+    let advice = "";
+
+    // LOGIC ตามภาพ image_4c8a19.jpg
+    
+    // 1. Check Level 1
+    if (highRisk === "lv1" || spo2 < 90) {
+        level = "ระดับ 1 (Resuscitation)";
+        colorClass = "red";
+        advice = "ส่งห้องฉุกเฉินด่วนที่สุด!";
+    } 
+    // 2. Check Level 2 (High Risk / Danger Zone VS)
+    else if (highRisk === "lv2" || (age === "adult" && (hr > 100 || rr > 20)) || spo2 < 95) {
+        level = "ระดับ 2 (Emergency)";
+        colorClass = "pink";
+        advice = "ส่งห้องฉุกเฉิน (รอถัดจากระดับ 1)";
+    }
+    // 3. Check Level 3 (OPD Fast Track)
+    else if (hr >= 120 || hr < 50 || rr > 24) { // ตัวอย่างเกณฑ์ VS ผิดปกติแต่ไม่วิกฤต
+        level = "ระดับ 3 (Urgent)";
+        colorClass = "yellow";
+        advice = "OPD Fast Track";
+    }
+    // 4. Resource Based (Level 4-5)
+    else {
+        if (resources === "2") {
+            level = "ระดับ 3 (Urgent)";
+            colorClass = "yellow";
+            advice = "ส่งตรวจตามคิว (Resource >= 2)";
+        } else if (resources === "1") {
+            level = "ระดับ 4 (Semi-Urgent)";
+            colorClass = "green";
+            advice = "ส่งตรวจตามคิว (Resource = 1)";
+        } else {
+            level = "ระดับ 5 (Non-Urgent)";
+            colorClass = "white";
+            advice = "ส่งตรวจตามคิว (ไม่ต้องใช้ Resource)";
+        }
+    }
+
+    resultDiv.innerHTML = level + "<br><span style='font-size: 16px;'>" + advice + "</span>";
+    resultDiv.className = colorClass;
+    resultDiv.style.display = "block";
+}
+</script>
+
+</body>
+</html>
