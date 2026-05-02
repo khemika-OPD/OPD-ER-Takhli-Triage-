@@ -1,167 +1,58 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Takhli OPD Triage Tool - Khemika</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --red-bg: #ffcccc; --red-text: #b30000;
-            --pink-bg: #ffe6f2; --pink-text: #cc0066;
-            --yellow-bg: #ffffcc; --yellow-text: #856404;
-            --green-bg: #d4edda; --green-text: #155724;
-            --white-bg: #ffffff; --white-text: #383d41;
-        }
-        body { font-family: 'Sarabun', sans-serif; padding: 10px; background-color: #f4f7f6; color: #333; }
-        .card { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #1a3a5a; }
-        h2 { text-align: center; color: #1a3a5a; border-bottom: 3px solid #1a3a5a; padding-bottom: 15px; }
-        
-        .section { margin-bottom: 15px; padding: 15px; border-radius: 12px; border: 1px solid #ddd; }
-        .level-1-box { background-color: var(--red-bg); border-left: 10px solid var(--red-text); }
-        .level-2-box { background-color: var(--pink-bg); border-left: 10px solid var(--pink-text); }
-        .level-3-box { background-color: #f8f9fa; border-left: 10px solid #1a3a5a; }
-        
-        .title { font-weight: bold; margin-bottom: 10px; font-size: 1.1em; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; }
-        .check-item { display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-
-        .vs-grid, .lab-grid, .resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px; }
-        input[type="number"], select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-
-        button#calc-btn { width: 100%; padding: 20px; background: #1a3a5a; color: white; border: none; border-radius: 12px; font-size: 1.5rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        
-        #result-container { margin-top: 20px; padding: 30px; border-radius: 15px; text-align: center; display: none; border: 4px solid #ddd; }
-        .res-level { font-size: 2.5rem; font-weight: 900; margin-bottom: 10px; }
-        
-        .qr-toggle-btn { background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer; margin-top: 15px; font-weight: bold; }
-        #qrContainer { display: none; text-align: center; padding: 20px; border-top: 1px dashed #ccc; margin-top: 15px; }
-    </style>
-</head>
-<body>
-
-<div class="card">
-    <h2>🏥 ระบบคัดกรองผู้ป่วย OPD รพ.ตาคลี</h2>
-    <p style="text-align: center; font-weight: bold; color: #666;">พัฒนาโดย Khemika-OPD Takhli</p>
-
-    <!-- Level 1 & 2 Checkboxes -->
-    <div class="section level-1-box">
-        <div class="title" style="color: var(--red-text);">🔴 ระดับ 1: RESUSCITATION (ช่วยชีวิตทันที)</div>
-        <div class="grid-container">
-            <label class="check-item"><input type="checkbox" class="lv1"> CPR / ET tube / ICD / Shock</label>
-            <label class="check-item"><input type="checkbox" class="lv1"> GCS < 8 / O2 sat < 90%</label>
-            <label class="check-item"><input type="checkbox" class="lv1"> Seizure / BP >= 220/130</label>
-            <label class="check-item"><input type="checkbox" class="lv1"> NEW score >= 5 (ไม่รวม Temp)</label>
-        </div>
-    </div>
-
-    <div class="section level-2-box">
-        <div class="title" style="color: var(--pink-text);">💗 ระดับ 2: EMERGENCY (เสี่ยง ซึม ปวด)</div>
-        <div class="grid-container">
-            <label class="check-item"><input type="checkbox" class="lv2"> Fast track Stroke / STEMI</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> เจ็บหน้าอก / อ่อนแรง < 24 ชม.</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> จิตเวชคลุ้มคลั่ง / สัตว์มีพิษกัด</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> Pain score >= 7</label>
-            <label class="check-item"><input type="checkbox" class="lv2"> ตกเลือด / GA < 28 สัปดาห์</label>
-        </div>
-    </div>
-
-    <!-- V/S & Labs -->
-    <div class="section level-3-box">
-        <div class="title">📊 สัญญาณชีพ & ผล Lab</div>
-        <div class="vs-grid">
-            <div><label>อายุ</label><select id="age"><option value="adult">> 8 ปี</option><option value="child_8">3-8 ปี</option><option value="child_3">3ด.-3ปี</option><option value="infant">< 3ด.</option></select></div>
-            <div><label>HR (ชีพจร)</label><input type="number" id="hr" placeholder="ครั้ง/นาที"></div>
-            <div><label>BP (ตัวบน)</label><input type="number" id="sbp" placeholder="mmHg"></div>
-            <div><label>SpO2 (%)</label><input type="number" id="spo2" value="100"></div>
-            <div><label>Temp (°C)</label><input type="number" id="temp" step="0.1" placeholder="37.0"></div>
-        </div>
-        <div class="lab-grid" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-            <div><label>FBS</label><input type="number" id="lab_fbs"></div>
-            <div><label>Platelet</label><input type="number" id="lab_plt"></div>
-            <div><label>INR</label><input type="number" id="lab_inr" step="0.1"></div>
-            <div><label>Hct (%)</label><input type="number" id="lab_hct"></div>
-        </div>
-    </div>
-
-    <!-- Resources -->
-    <div class="section level-3-box" style="border-left-color: #27ae60;">
-        <div class="title" style="color: #27ae60;">🛠 ทรัพยากรที่ต้องใช้ (Resources)</div>
-        <div class="resource-grid">
-            <label class="check-item"><input type="checkbox" class="res"> Lab / EKG / X-ray</label>
-            <label class="check-item"><input type="checkbox" class="res"> IV Fluid / Inj. Med</label>
-            <label class="check-item"><input type="checkbox" class="res"> Consult Specialist</label>
-            <label class="check-item"><input type="checkbox" class="res"> หัตถการ (เย็บแผล/สวนปัสสาวะ)</label>
-        </div>
-    </div>
-
-    <button id="calc-btn" onclick="triage()">ประมวลผลการคัดแยก</button>
-
-    <div id="result-container">
-        <div id="res-level" class="res-level"></div>
-        <div id="res-dest" style="font-size: 1.2rem; font-weight: bold;"></div>
-        <button class="qr-toggle-btn" onclick="toggleQR()">เปิด/ปิด QR Code สำหรับแชร์แอป</button>
-        <div id="qrContainer">
-            <div id="qrcode" style="display: flex; justify-content: center;"></div>
-            <p style="font-size: 0.7rem; color: #888; margin-top: 10px;">Innovation by Khemika | OPD Takhli Toolkit</p>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
 function triage() {
-    const lv1 = Array.from(document.querySelectorAll('.lv1')).some(c => c.checked);
-    const lv2 = Array.from(document.querySelectorAll('.lv2')).some(c => c.checked);
-    const resCount = Array.from(document.querySelectorAll('.res')).filter(c => c.checked).length;
+    // 1. ตรวจสอบการเลือก (ระดับ 1 และ 2)
+    const isLevel1 = Array.from(document.querySelectorAll('.lv1')).some(c => c.checked);
+    const isLevel2 = Array.from(document.querySelectorAll('.lv2')).some(c => c.checked);
 
-    const hr = parseInt(document.getElementById('hr').value) || 0;
-    const sbp = parseInt(document.getElementById('sbp').value) || 0;
-    const spo2 = parseInt(document.getElementById('spo2').value) || 100;
-    const temp = parseFloat(document.getElementById('temp').value) || 0;
+    // 2. ดึงค่า V/S และ Lab (ระดับ 3)
     const age = document.getElementById('age').value;
+    const hr = parseInt(document.getElementById('hr').value) || 0;
+    const rr = parseInt(document.getElementById('rr').value) || 0;
+    const sbp = parseInt(document.getElementById('sbp').value) || 0;
+    const temp = parseFloat(document.getElementById('temp').value) || 0;
+    const spo2 = parseInt(document.getElementById('spo2').value) || 100;
 
-    const fbs = parseInt(document.getElementById('lab_fbs').value) || 999;
-    const plt = parseInt(document.getElementById('lab_plt').value) || 999999;
-    const inr = parseFloat(document.getElementById('lab_inr').value) || 0;
-    const hct = parseInt(document.getElementById('lab_hct').value) || 99;
+    const fbs = parseInt(document.getElementById('lab_fbs').value) || 100;
+    const na = parseInt(document.getElementById('lab_na').value) || 140;
+    const k = parseFloat(document.getElementById('lab_k').value) || 4.0;
+    const wbc = parseInt(document.getElementById('lab_wbc').value) || 5000;
+    const vct = parseInt(document.getElementById('lab_vct').value) || 10;
 
-    let final = { title: 'ระดับ 5 (Non-Urgent)', color: '#ffffff', text: '#333', dest: 'อาคาร OPD (ตรวจตามคิวปกติ)' };
+    // 3. ตรวจสอบเงื่อนไขระดับ 3 (เทียบค่าปกติ)
+    let isLevel3 = false;
+    
+    // เช็ค V/S ผิดปกติแต่ไม่มีอาการ (กล่องสีส้มในผัง)
+    if (hr >= 120 || hr < 50 || sbp >= 160 || temp >= 38) isLevel3 = true;
+    
+    // เช็ค Lab วิกฤต (Panic Value)
+    if (fbs <= 55 || fbs >= 400) isLevel3 = true;
+    if (na <= 120 || na >= 160) isLevel3 = true;
+    if (k <= 2.5 || k >= 6.0) isLevel3 = true;
+    if (wbc <= 2000 || wbc >= 30000) isLevel3 = true;
+    if (vct >= 20) isLevel3 = true; // VCT > 20 นาที
 
-    // Triage Logic Based on Takhli Flowchart
-    if (lv1 || spo2 < 90 || (sbp > 0 && sbp < 90)) {
-        final = { title: 'ระดับ 1 (Resuscitation)', color: '#ffcccc', text: '#b30000', dest: 'ห้องฉุกเฉิน (ช่วยชีวิตทันที)' };
+    // 4. ตัดสินผลตามลำดับความรุนแรง (Hierarchy)
+    let final;
+    if (isLevel1 || spo2 < 90) {
+        final = { title: 'ระดับ 1 (Resuscitation)', color: '#ffcccc', text: '#b30000', dest: 'ห้องฉุกเฉิน (ทันที)' };
     } 
-    else if (lv2 || spo2 < 95 || (age==='adult' && (hr>100)) || (age==='child_8' && (hr>140)) || (age==='child_3' && (hr>160)) || (age==='infant' && (hr>180))) {
-        final = { title: 'ระดับ 2 (Emergency)', color: '#ffe6f2', text: '#cc0066', dest: 'ห้องฉุกเฉิน (ช่วยเหลือเร่งด่วน)' };
+    else if (isLevel2 || spo2 < 95 || checkVsByAge(age, hr, rr)) {
+        final = { title: 'ระดับ 2 (Emergency)', color: '#ffe6f2', text: '#cc0066', dest: 'ห้องฉุกเฉิน (ด่วน)' };
     }
-    else if (resCount > 1 || (hr >= 120 || hr < 50) || (sbp >= 160) || (temp >= 38) || (fbs <= 55 || fbs >= 400) || (plt <= 50000) || (inr >= 5) || (hct <= 20)) {
-        final = { title: 'ระดับ 3 (Urgent)', color: '#ffffcc', text: '#856404', dest: 'OPD Fast Track / คิวเร่งด่วน' };
+    else if (isLevel3) {
+        final = { title: 'ระดับ 3 (Urgent)', color: '#ffffcc', text: '#856404', dest: 'OPD Fast Track' };
     }
-    else if (resCount === 1) {
-        final = { title: 'ระดับ 4 (Semi-Urgent)', color: '#d4edda', text: '#155724', dest: 'จุดตรวจรอง / ตรวจตามลำดับ' };
-    }
-
-    const resBox = document.getElementById('result-container');
-    resBox.style.display = 'block';
-    resBox.style.backgroundColor = final.color;
-    resBox.style.color = final.text;
-    resBox.style.borderColor = final.text;
-    document.getElementById('res-level').innerText = final.title;
-    document.getElementById('res-dest').innerText = "จุดส่งตรวจ: " + final.dest;
-    resBox.scrollIntoView({ behavior: 'smooth' });
-}
-
-function toggleQR() {
-    const container = document.getElementById("qrContainer");
-    if (container.style.display === "block") container.style.display = "none";
     else {
-        container.style.display = "block";
-        if (!document.getElementById("qrcode").innerHTML) {
-            new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 120, height: 120 });
-        }
+        final = { title: 'ระดับ 4-5', color: '#ffffff', text: '#333', dest: 'ตรวจตามคิวปกติ' };
     }
+
+    renderResult(final);
 }
-</script>
-</body>
-</html>
+
+// ฟังก์ชันแยกเช็ค V/S ตามช่วงอายุ (เกณฑ์ระดับ 2)
+function checkVsByAge(age, hr, rr) {
+    if (age === 'adult' && (hr > 100 || rr > 20)) return true;
+    if (age === 'child_8' && (hr > 140 || rr > 30)) return true;
+    if (age === 'child_3' && (hr > 160 || rr > 40)) return true;
+    if (age === 'infant' && (hr > 180 || rr > 50)) return true;
+    return false;
+}
