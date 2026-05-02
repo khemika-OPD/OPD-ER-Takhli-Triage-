@@ -30,14 +30,13 @@
         input[type="number"], select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-family: 'Sarabun'; }
 
         button#calc-btn { width: 100%; padding: 18px; background: #1a3a5a; color: white; border: none; border-radius: 15px; font-size: 1.4rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: 0.2s; }
-        button#calc-btn:active { transform: scale(0.98); }
         
         #result-container { margin-top: 25px; padding: 30px; border-radius: 15px; text-align: center; display: none; border: 4px solid #ddd; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .res-level { font-size: 2.2rem; font-weight: 900; margin-bottom: 5px; }
         
-        .qr-toggle-btn { background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer; margin-top: 20px; font-weight: bold; font-size: 0.85rem; }
         #qrContainer { display: none; text-align: center; padding: 20px; border-top: 1px dashed #ccc; margin-top: 15px; background: #fafafa; border-radius: 0 0 15px 15px; }
+        .qr-toggle-btn { background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer; margin-top: 20px; font-weight: bold; font-size: 0.85rem; }
         .footer { text-align: center; margin-top: 15px; font-size: 0.75rem; color: #777; font-weight: bold; }
     </style>
 </head>
@@ -47,7 +46,6 @@
     <h2>🏥 Triage Tool รพ.ตาคลี</h2>
     <p style="text-align: center; font-weight: bold; color: #1a3a5a; margin-top: -15px;">พัฒนาโดย Khemika-OPD Takhli</p>
 
-    <!-- ระดับ 1 -->
     <div class="section level-1-box">
         <div class="title" style="color: var(--red-text);">🔴 ระดับ 1: RESUSCITATION (ช่วยชีวิตทันที)</div>
         <div class="grid-container">
@@ -58,7 +56,6 @@
         </div>
     </div>
 
-    <!-- ระดับ 2 -->
     <div class="section level-2-box">
         <div class="title" style="color: var(--pink-text);">💗 ระดับ 2: EMERGENCY (เสี่ยง ซึม ปวด)</div>
         <div class="grid-container">
@@ -70,10 +67,8 @@
         </div>
     </div>
 
-    <!-- ระดับ 3: V/S & Labs -->
     <div class="section level-3-box">
         <div class="title">🟡 ระดับ 3: URGENT (V/S & Lab วิกฤต)</div>
-        <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #555;">📊 สัญญาณชีพ (เทียบค่าปกติช่วงอายุ)</div>
         <div class="vs-grid">
             <div><label>อายุ</label><select id="age"><option value="adult">> 8 ปี</option><option value="child_8">3-8 ปี</option><option value="child_3">3ด.-3ปี</option><option value="infant">< 3ด.</option></select></div>
             <div><label>HR (ชีพจร)</label><input type="number" id="hr"></div>
@@ -82,7 +77,6 @@
             <div><label>SpO2 (%)</label><input type="number" id="spo2" value="100"></div>
             <div><label>Temp (°C)</label><input type="number" id="temp" step="0.1" placeholder="37.0"></div>
         </div>
-        <div style="font-size: 0.85rem; font-weight: bold; margin-top: 15px; margin-bottom: 5px; color: #555;">🧪 ผล Lab วิกฤต (Panic Value)</div>
         <div class="lab-grid">
             <div><label>FBS</label><input type="number" id="lab_fbs"></div>
             <div><label>Sodium (Na)</label><input type="number" id="lab_na"></div>
@@ -101,19 +95,17 @@
         <button class="qr-toggle-btn" onclick="toggleQR()">เปิด/ปิด QR Code เพื่อแชร์แอป</button>
         <div id="qrContainer">
             <div id="qrcode" style="display: flex; justify-content: center;"></div>
-            <div class="footer">Innovation by Khemika | OPD Takhli Digital Toolkit</div>
         </div>
     </div>
+    <div class="footer">Innovation by Khemika | Khemika-OPD Takhli</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 function triage() {
-    // 1. เช็คระดับ 1 และ 2 (ใช้ Hierarchy: แดง > ชมพู)
     const isLevel1 = Array.from(document.querySelectorAll('.lv1')).some(c => c.checked);
     const isLevel2 = Array.from(document.querySelectorAll('.lv2')).some(c => c.checked);
 
-    // 2. ดึงค่า V/S และ Lab
     const age = document.getElementById('age').value;
     const hr = parseInt(document.getElementById('hr').value) || 0;
     const rr = parseInt(document.getElementById('rr').value) || 0;
@@ -127,7 +119,6 @@ function triage() {
     const wbc = parseInt(document.getElementById('lab_wbc').value) || 5000;
     const vct = parseInt(document.getElementById('lab_vct').value) || 10;
 
-    // 3. Logic ตรวจสอบระดับ 3 (เทียบค่าปกติ/วิกฤต)
     let isLevel3 = false;
     if (hr >= 120 || hr < 50 || sbp >= 160 || temp >= 38) isLevel3 = true;
     if (fbs <= 55 || fbs >= 400) isLevel3 = true;
@@ -136,19 +127,19 @@ function triage() {
     if (wbc <= 2000 || wbc >= 30000) isLevel3 = true;
     if (vct >= 20) isLevel3 = true;
 
-    // 4. ตัดสินผลตามความรุนแรง (Hierarchy)
     let final;
+    // ปรับการระบุสีเป็น Hex Code โดยตรง
     if (isLevel1 || spo2 < 90) {
-        final = { title: 'ระดับ 1 (Resuscitation)', color: var(--red-bg), text: var(--red-text), dest: 'ห้องฉุกเฉิน (ทันที)' };
+        final = { title: 'ระดับ 1 (Resuscitation)', color: '#ffcccc', text: '#b30000', dest: 'ห้องฉุกเฉิน (ทันที)' };
     } 
     else if (isLevel2 || spo2 < 95 || checkVsByAge(age, hr, rr)) {
-        final = { title: 'ระดับ 2 (Emergency)', color: var(--pink-bg), text: var(--pink-text), dest: 'ห้องฉุกเฉิน (ช่วยเหลือเร่งด่วน)' };
+        final = { title: 'ระดับ 2 (Emergency)', color: '#ffe6f2', text: '#cc0066', dest: 'ห้องฉุกเฉิน (ช่วยเหลือเร่งด่วน)' };
     }
     else if (isLevel3) {
-        final = { title: 'ระดับ 3 (Urgent)', color: var(--yellow-bg), text: var(--yellow-text), dest: 'OPD Fast Track / คิวเร่งด่วน' };
+        final = { title: 'ระดับ 3 (Urgent)', color: '#ffffcc', text: '#856404', dest: 'OPD Fast Track / คิวเร่งด่วน' };
     }
     else {
-        final = { title: 'ระดับ 4-5 (Non-Urgent)', color: var(--white-bg), text: '#333', dest: 'อาคาร OPD (ตรวจตามคิวปกติ)' };
+        final = { title: 'ระดับ 4-5 (Non-Urgent)', color: '#ffffff', text: '#333', dest: 'อาคาร OPD (ตรวจตามคิวปกติ)' };
     }
 
     renderResult(final);
