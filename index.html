@@ -3,95 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Takhli Triage Tool - Khemika</title>
+    <title>Triage Takhli V3.5 - Khemika</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --red: #ff4d4d; --pink: #ff85a2; --yellow: #ffcc00; --green: #2ecc71; --white: #ffffff; --dark: #1a3a5a; }
         body { font-family: 'Sarabun', sans-serif; background: #f4f7f6; margin: 0; padding: 10px; }
         .triage-card { max-width: 550px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid #ddd; }
-        .header { background: var(--dark); color: white; padding: 25px 15px; text-align: center; position: relative; }
-        .content { padding: 20px; min-height: 400px; }
+        .header { padding: 25px 15px; text-align: center; color: white; transition: 0.4s; }
+        .content { padding: 20px; min-height: 420px; }
         .group-title { font-weight: bold; color: var(--dark); border-left: 5px solid #ff4757; padding-left: 10px; margin-bottom: 15px; }
         
-        /* Checklist Styling */
-        .check-item { display: block; background: #f9f9f9; padding: 12px; margin-bottom: 8px; border-radius: 12px; border: 1px solid #eee; cursor: pointer; font-size: 0.9rem; }
+        .check-item { display: block; background: #f9f9f9; padding: 12px; margin-bottom: 8px; border-radius: 12px; border: 1px solid #eee; cursor: pointer; font-size: 0.85rem; line-height: 1.4; }
         .check-item input { margin-right: 10px; transform: scale(1.2); }
         
-        /* V/S Lab Style Table */
         .vs-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
         .vs-table th, .vs-table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        .vs-table th { background: #f0f2f5; color: #555; }
+        .vs-table th { background: #f8f9fa; }
         input[type="number"] { width: 80%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-size: 1rem; }
 
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         button { flex: 1; padding: 15px; border: none; border-radius: 15px; font-size: 1rem; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; transition: 0.2s; }
-        .btn-back { background: #bdc3c7; color: #333; }
         .btn-next { background: var(--dark); color: white; }
-        .btn-pink-res { background: #d63384; color: white; width: 100%; margin-top: 10px; }
+        .btn-back { background: #bdc3c7; color: #333; }
 
         .result-screen { text-align: center; padding: 30px 15px; }
-        .qr-section { margin-top: 20px; padding: 15px; border-top: 1px dashed #ccc; text-align: center; }
         .hidden { display: none; }
+        .qr-section { margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 15px; text-align: center; opacity: 0.3; }
     </style>
 </head>
 <body>
 
 <div class="triage-card">
-    <div class="header" id="header">
-        <h2 style="margin:0;">Triage Takhli Digital</h2>
-        <p style="margin:5px 0 0; font-size: 0.8rem; opacity: 0.9;">Khemika Pongsri | Senior Nurse</p>
+    <div class="header" id="header" style="background: var(--red);">
+        <h2 style="margin:0;">OPD Takhli Triage</h2>
+        <p style="margin:5px 0 0; font-size: 0.8rem; opacity: 0.9;">Khemika Pongsri | Nurse Innovation</p>
     </div>
 
     <div class="content">
-        <!-- Step 1: สีแดง (ระดับ 1) -->
+        <!-- Step 1: สีแดง -->
         <div id="step_red">
-            <div class="group-title">🚨 ระดับ 1: ภาวะวิกฤต (Red Zone)</div>
+            <div class="group-title" style="border-left-color: #fff;">🚨 ระดับ 1: ภาวะวิกฤต (Red Zone)</div>
             <div id="red_checklist">
-                <label class="check-item"><input type="checkbox" value="red"> CPR / ET Tube / ICD insertion</label>
-                <label class="check-item"><input type="checkbox" value="red"> หมดสติ / GCS < 8 / ชักเกร็ง</label>
-                <label class="check-item"><input type="checkbox" value="red"> Shock (SBP < 90 / MAP < 65)</label>
-                <label class="check-item"><input type="checkbox" value="red"> O2 Sat < 90%</label>
-                <label class="check-item"><input type="checkbox" value="red"> BP ≥ 220/130 mmHg</label>
-                <label class="check-item"><input type="checkbox" value="red"> NEW Score ≥ 5 (หรือข้อเดียว ≥ 3)</label>
+                <label class="check-item"><input type="checkbox"> CPR / ET Tube / ICD insertion</label>
+                <label class="check-item"><input type="checkbox"> หมดสติ / GCS < 8 / ชักเกร็ง</label>
+                <label class="check-item"><input type="checkbox"> Shock (SBP < 90 / MAP < 65)</label>
+                <label class="check-item"><input type="checkbox"> O2 Sat < 90%</label>
+                <label class="check-item"><input type="checkbox"> BP ≥ 220/130 mmHg</label>
+                <label class="check-item"><input type="checkbox"> NEW Score ≥ 5 (หรือข้อใดข้อหนึ่ง ≥ 3 ยกเว้น Temp)</label>
             </div>
             <div class="btn-group">
-                <button class="btn-next" onclick="checkRed()">ตรวจสอบระดับถัดไป (สีชมพู)</button>
+                <button class="btn-next" onclick="checkRed()">ตรวจสอบระดับ 2 (สีชมพู)</button>
             </div>
         </div>
 
-        <!-- Step 2: สีชมพู (ระดับ 2) -->
+        <!-- Step 2: สีชมพู -->
         <div id="step_pink" class="hidden">
             <div class="group-title">💓 ระดับ 2: ภาวะเสี่ยงสูง (Pink Zone)</div>
-            <div style="max-height: 300px; overflow-y: auto; padding-right: 5px;">
-                <label class="check-item"><input type="checkbox" value="pink"> Fast track Stroke / STEMI / Chest Pain</label>
-                <label class="check-item"><input type="checkbox" value="pink"> อาเจียน / ถ่าย / ไอ เป็นเลือด (Active)</label>
-                <label class="check-item"><input type="checkbox" value="pink"> Pain Score ≥ 7 + V/S ผิดปกติ</label>
-                <label class="check-item"><input type="checkbox" value="pink"> HR ≥ 120 หรือ ≤ 70 + หน้ามืด/วูบ/ความดันตก</label>
-                <label class="check-item"><input type="checkbox" value="pink"> BP ≥ 180/100 + ตามัว/อ่อนแรง/เจ็บหน้าอก/พูดไม่ชัด</label>
-                <label class="check-item"><input type="checkbox" value="pink"> อุบัติเหตุ / สัตว์พิษกัด / สัตว์เลี้ยงลูกด้วยนมกัด (ใน 24 ชม.)</label>
-                <label class="check-item"><input type="checkbox" value="pink"> หญิงตั้งครรภ์ < 26 สัปดาห์ (ส่ง ER)</label>
-                <label class="check-item"><input type="checkbox" value="pink"> หญิงตั้งครรภ์ ≥ 26 สัปดาห์ (ส่งห้องคลอด)</label>
-                <label class="check-item"><input type="checkbox" value="pink"> ผู้ป่วยคดี / ผู้ป่วยจิตเวชคลุ้มคลั่ง</label>
-                <label class="check-item"><input type="checkbox" value="pink"> เบาหวาน FBS ≤ 70 หรือ HI</label>
+            <div style="max-height: 320px; overflow-y: auto;">
+                <label class="check-item"><input type="checkbox"> Fast track Stroke / STEMI / Chest Pain</label>
+                <label class="check-item"><input type="checkbox"> อาเจียน / ถ่าย / ไอ เป็นเลือด (Active)</label>
+                <label class="check-item"><input type="checkbox"> ได้รับสารพิษ / สัตว์พิษกัด / สัตว์เลี้ยงลูกกัด (24 ชม.)</label>
+                <label class="check-item"><input type="checkbox"> HR ≥ 120 หรือ ≤ 70 + หน้ามืด/วูบ/ความดันตก</label>
+                <label class="check-item"><input type="checkbox"> BP ≥ 180/100 + ตามัว/อ่อนแรง/เจ็บหน้าอก/พูดไม่ชัด</label>
+                <label class="check-item"><input type="checkbox"> Pain Score ≥ 7 ร่วมกับ V/S ผิดปกติ</label>
+                <label class="check-item"><input type="checkbox"> เบาหวาน FBS ≤ 70 หรือ DTX HI + อาการรุนแรงช่วยตนเองไม่ได้</label>
+                <label class="check-item"><input type="checkbox"> หญิงตั้งครรภ์ < 26 สัปดาห์ (ส่ง ER)</label>
+                <label class="check-item"><input type="checkbox"> หญิงตั้งครรภ์ ≥ 26 สัปดาห์ (ส่งห้องคลอด)</label>
+                <label class="check-item"><input type="checkbox"> ผู้ป่วยคดี / จิตเวชคลุ้มคลั่งก้าวร้าว</label>
             </div>
             <div class="btn-group">
-                <button class="btn-back" onclick="nav('step_red', 'var(--dark)')">ย้อนกลับ</button>
+                <button class="btn-back" onclick="nav('step_red', 'var(--red)')">ย้อนกลับ</button>
                 <button class="btn-next" onclick="checkPink()">ตรวจสอบ Vital Signs</button>
             </div>
         </div>
 
-        <!-- Step 3: Vital Signs (Lab Style) -->
+        <!-- Step 3: Vital Signs -->
         <div id="step_vs" class="hidden">
             <div class="group-title">📊 ตรวจสอบ Vital Signs (V/S)</div>
-            <div style="margin-bottom: 15px;">
-                <label>ระบุช่วงอายุ:</label>
-                <select id="age_range" style="width:100%; padding:10px; border-radius:10px;" onchange="updateVSLimits()">
-                    <option value="baby"> < 3 เดือน </option>
-                    <option value="toddler"> 3 เดือน - 3 ปี </option>
-                    <option value="child"> 3 - 8 ปี </option>
-                    <option value="adult" selected> > 8 ปี </option>
-                </select>
-            </div>
+            <select id="age_range" style="width:100%; padding:12px; border-radius:10px; margin-bottom:10px;" onchange="updateVSLimits()">
+                <option value="baby"> < 3 เดือน </option>
+                <option value="toddler"> 3 เดือน - 3 ปี </option>
+                <option value="child"> 3 - 8 ปี </option>
+                <option value="adult" selected> > 8 ปี </option>
+            </select>
             <table class="vs-table">
                 <tr><th>Parameter</th><th>Value</th><th>Limit</th></tr>
                 <tr><td>PR (bpm)</td><td><input type="number" id="vs_hr"></td><td id="limit_hr">> 100</td></tr>
@@ -99,39 +93,52 @@
                 <tr><td>O2 Sat (%)</td><td><input type="number" id="vs_o2"></td><td>< 95%</td></tr>
             </table>
             <div class="btn-group">
-                <button class="btn-back" onclick="nav('step_pink', '#ff85a2')">ย้อนกลับ</button>
-                <button class="btn-next" onclick="validateVS()">ตรวจสอบผล Lab (เหลือง)</button>
+                <button class="btn-back" onclick="nav('step_pink', 'var(--pink)')">ย้อนกลับ</button>
+                <button class="btn-next" onclick="validateVS()">ตรวจสอบผล Lab (สีเหลือง)</button>
             </div>
         </div>
 
-        <!-- Step 4: สีเหลือง (ระดับ 3) -->
+        <!-- Step 4: สีเหลือง -->
         <div id="step_yellow" class="hidden">
-            <div class="group-title">🟡 ระดับ 3: Lab วิกฤต (Yellow Zone)</div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                <label class="check-item"><input type="checkbox"> FBS ≤ 55 หรือ ≥ 400</label>
-                <label class="check-item"><input type="checkbox"> Na ≤ 120 หรือ ≥ 160</label>
-                <label class="check-item"><input type="checkbox"> K ≤ 2.5 หรือ ≥ 6</label>
-                <label class="check-item"><input type="checkbox"> Hct ≤ 20%</label>
-                <label class="check-item"><input type="checkbox"> Platelet วิกฤต</label>
-                <label class="check-item"><input type="checkbox"> WBC ≤ 2k หรือ ≥ 30k</label>
+            <div class="group-title">🟡 ระดับ 3: ผล Lab วิกฤต (Yellow Zone)</div>
+            <div style="display:grid; grid-template-columns: 1fr; gap:5px;">
+                <label class="check-item"><input type="checkbox"> FBS ≤ 55 (Non-DM) หรือ ≤ 70 (DM) / ≥ 400</label>
+                <label class="check-item"><input type="checkbox"> Na ≤ 120 หรือ ≥ 160 / K ≤ 2.5 หรือ ≥ 6</label>
+                <label class="check-item"><input type="checkbox"> Hct ≤ 20% / VCT ≥ 20 นาที (Hematotoxin)</label>
+                <label class="check-item"><input type="checkbox"> Platelet (ผู้ใหญ่) ≤ 20k หรือ ≥ 1,000k</label>
+                <label class="check-item"><input type="checkbox"> Platelet (เด็ก) ≤ 50k หรือ ≥ 1,000k</label>
+                <label class="check-item"><input type="checkbox"> WBC ≤ 2,000 หรือ ≥ 30,000</label>
+                <label class="check-item"><input type="checkbox"> INR ≥ 5</label>
             </div>
             <div class="btn-group">
-                <button class="btn-back" onclick="nav('step_vs', '#ffcc00')">ย้อนกลับ</button>
-                <button class="btn-next" onclick="checkYellow()">ตรวจสอบกิจกรรม (เขียว/ขาว)</button>
+                <button class="btn-back" onclick="nav('step_vs', '#bdc3c7')">ย้อนกลับ</button>
+                <button class="btn-next" onclick="checkYellow()">คัดแยกทรัพยากร (เขียว/ขาว)</button>
             </div>
         </div>
 
-        <!-- ผลลัพธ์สุดท้าย -->
+        <!-- Step 5: แยกสีเขียว/ขาว -->
+        <div id="step_resource" class="hidden">
+            <div class="group-title">🏷️ ระดับ 4-5: จำนวนทรัพยากร (Resources)</div>
+            <p style="font-size: 0.85rem; color:#666;">ประเมินตามการใช้ Lab, X-ray, ฉีดยา, ทำแผลซับซ้อน</p>
+            <div class="btn-group" style="flex-direction: column;">
+                <button style="background: var(--green); color: white;" onclick="finalize('เขียว', 'ระดับ 4: Non-Urgent (กิจกรรม 1 อย่าง)')">ใช้ Resource 1 อย่าง (สีเขียว)</button>
+                <button style="background: #eee; color: #333;" onclick="finalize('ขาว', 'ระดับ 5: Self Care (ไม่ใช้ Resource)')">ไม่ใช้เลย (สีขาว)</button>
+                <button class="btn-back" onclick="nav('step_yellow', 'var(--yellow)')">ย้อนกลับ</button>
+            </div>
+        </div>
+
+        <!-- หน้าผลลัพธ์ -->
         <div id="step_result" class="hidden">
             <div class="result-screen">
-                <div id="res_badge" style="padding:40px; border-radius:25px; font-size:2rem; font-weight:bold; border:5px solid;"></div>
-                <p id="res_text" style="margin-top:20px; font-weight:bold; color:#333;"></p>
-                <button class="btn-next" style="width:80%; margin-top:20px;" onclick="location.reload()">คัดกรองใหม่</button>
+                <div id="res_badge" style="padding:40px; border-radius:25px; font-size:2.2rem; font-weight:bold; color: white;"></div>
+                <p id="res_text" style="margin-top:20px; font-weight:bold; font-size: 1.1rem;"></p>
+                <button class="btn-next" style="width:100%; margin-top:25px;" onclick="location.reload()">เริ่มคัดกรองใหม่</button>
             </div>
-            <div class="qr-section">
+            <div id="qr_area" class="qr-section hidden">
                 <div id="qrcode" style="display:flex; justify-content:center; margin-bottom:10px;"></div>
-                <p style="font-size:0.7rem; color:#888;">Scan to Share Triage App</p>
+                <button onclick="document.getElementById('qr_area').classList.add('hidden')" style="font-size:0.7rem; background:none; color:#888;">ซ่อน QR</button>
             </div>
+            <button id="btn_show_qr" onclick="showQR()" style="background:none; border:none; color:#ccc; font-size:0.7rem; width:100%;">แสดง QR Code สำหรับแชร์</button>
         </div>
     </div>
 </div>
@@ -145,15 +152,13 @@
     }
 
     function checkRed() {
-        const checked = document.querySelectorAll('#red_checklist input:checked').length;
-        if (checked > 0) finalize('แดง', 'ระดับ 1: Resuscitation (ส่ง ER ทันที)');
-        else nav('step_pink', '#ff85a2');
+        if (document.querySelectorAll('#red_checklist input:checked').length > 0) finalize('แดง', 'ระดับ 1: Resuscitation (ส่ง ER ทันที)');
+        else nav('step_pink', 'var(--pink)');
     }
 
     function checkPink() {
-        const checked = document.querySelectorAll('#step_pink input:checked').length;
-        if (checked > 0) finalize('ชมพู', 'ระดับ 2: Emergency (ส่งห้องฉุกเฉิน)');
-        else nav('step_vs', '#ffcc00');
+        if (document.querySelectorAll('#step_pink input:checked').length > 0) finalize('ชมพู', 'ระดับ 2: Emergency (ส่งห้องฉุกเฉิน/ห้องคลอด)');
+        else nav('step_vs', '#bdc3c7');
     }
 
     function updateVSLimits() {
@@ -169,31 +174,31 @@
         const rr = parseInt(document.getElementById('vs_rr').value) || 0;
         const o2 = parseInt(document.getElementById('vs_o2').value) || 100;
         const limits = { baby: [180, 50], toddler: [160, 40], child: [140, 30], adult: [100, 20] };
-        
-        if (hr > limits[age][0] || rr > limits[age][1] || o2 < 95) {
-            finalize('ชมพู', 'ระดับ 2: Emergency (Vital Signs วิกฤต)');
-        } else {
-            nav('step_yellow', '#ffcc00');
-        }
+        if (hr > limits[age][0] || rr > limits[age][1] || o2 < 95) finalize('ชมพู', 'ระดับ 2: Emergency (Vital Signs ผิดปกติ)');
+        else nav('step_yellow', 'var(--yellow)');
     }
 
     function checkYellow() {
-        const checked = document.querySelectorAll('#step_yellow input:checked').length;
-        if (checked > 0) finalize('เหลือง', 'ระดับ 3: Urgent (OPD Fast Track)');
-        else finalize('เขียว/ขาว', 'ระดับ 4-5: ตรวจสอบจำนวน Resources (1 อย่าง = เขียว, 0 อย่าง = ขาว)');
+        if (document.querySelectorAll('#step_yellow input:checked').length > 0) finalize('เหลือง', 'ระดับ 3: Urgent (OPD Fast Track)');
+        else nav('step_resource', 'var(--green)');
     }
 
     function finalize(color, text) {
-        const bg = { 'แดง': '#ff4d4d', 'ชมพู': '#ff85a2', 'เหลือง': '#ffcc00', 'เขียว/ขาว': '#2ecc71' };
+        const bg = { 'แดง': '#ff4d4d', 'ชมพู': '#ff85a2', 'เหลือง': '#ffcc00', 'เขียว': '#2ecc71', 'ขาว': '#7f8c8d' };
         nav('step_result', bg[color]);
         const badge = document.getElementById('res_badge');
-        badge.innerText = "สี" + color;
-        badge.style.borderColor = "#fff";
-        badge.style.color = "#fff";
+        badge.innerText = "ระดับ: สี" + color;
+        badge.style.background = bg[color];
         document.getElementById('res_text').innerText = text;
-        
+        document.getElementById('res_text').style.color = bg[color];
+    }
+
+    function showQR() {
+        const area = document.getElementById('qr_area');
+        area.classList.remove('hidden');
+        document.getElementById('btn_show_qr').classList.add('hidden');
         if (!document.getElementById("qrcode").innerHTML) {
-            new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 120, height: 120 });
+            new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 100, height: 100 });
         }
     }
 </script>
